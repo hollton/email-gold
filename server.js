@@ -47,8 +47,8 @@ async function sendEmail(price) {
     });
 }
 
-// 设置定时任务，分别在每天的 10:00 和 18:00 执行
-schedule.scheduleJob([{ hour: 10, minute: 0, tz: 'Asia/Shanghai' }, { hour: 18, minute: 0, tz: 'Asia/Shanghai' }], async function(){
+// 设置定时任务，分别在东八区每天的 10:00 和 18:00 执行
+schedule.scheduleJob('0 2,10 * * *', async function(){
     const { last_price } = await getGoldPrice();
     await sendEmail(last_price);
 });
