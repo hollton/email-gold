@@ -2,10 +2,11 @@
 const fetch = require('node-fetch');
 const schedule = require('node-schedule');
 const nodemailer = require('nodemailer');
+const hello = require('./hello.js');
 
 const emailSend = 'holltonliu@163.com'
-// const emailRece = [emailSend, 'kkxx.ll@qq.com']
-const emailRece = [emailSend]
+const emailRece = [emailSend, 'kkxx.ll@qq.com']
+// const emailRece = [emailSend]
 const emailPass = 'GGcvRj6VNjCtcPQT'
 
 // 邮件发送配置
@@ -29,11 +30,12 @@ async function getGoldPrice() {
 
 // 发送邮件的函数
 async function sendEmail(price) {
+    const greeting = hello[Math.floor(Math.random() * hello.length)]
     const mailOptions = {
         from: emailSend, // 发件人邮箱
         to: emailRece.join(','), // 收件人邮箱，使用数组并转换为逗号分隔的字符串
-        subject: '今日实时金价', // 邮件主题
-        text: `实时金价为：${price}元/克` // 邮件内容
+        subject: `今日实时金价：${price}元/克`, // 邮件主题
+        text: greeting // 邮件内容
     };
 
     transporter.sendMail(mailOptions, function(error, info){
@@ -45,10 +47,10 @@ async function sendEmail(price) {
     });
 }
 
-// 设置定时任务，每天上午10点执行
-schedule.scheduleJob('0 10 * * *', async function(){
+// 设置定时任务，分别在每天的 10:00 和 18:00 执行
+schedule.scheduleJob([{ hour: 10, minute: 0, tz: 'Asia/Shanghai' }, { hour: 18, minute: 0, tz: 'Asia/Shanghai' }], async function(){
     const { last_price } = await getGoldPrice();
     await sendEmail(last_price);
 });
 
-console.log('定时任务已启动，每天上午10点发送金价邮件。');
+console.log('定时任务已启动，每天10:00 和 18:00发送金价邮件。');
